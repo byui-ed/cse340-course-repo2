@@ -4,6 +4,7 @@ import path from 'path';
 import { testConnection } from './src/models/db.js';
 import { getAllOrganizations } from './src/models/organizations.js';
 import { getAllCategories } from './src/models/categories.js';
+import { getAllProjects } from './src/models/projects.js';
 
 // Define the application environment
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
@@ -45,8 +46,22 @@ app.get('/organizations', async (req, res) => {
 });
 
 app.get('/projects', async (req, res) => {
-    const title = 'Service Projects';
-    res.render('projects', { title });
+    try {
+        const projects = await getAllProjects();
+        const title = 'Upcoming Service Projects';
+
+        // Helper function to format SQL DATE into user-friendly text
+        const formatDate = (dateString) => {
+            if (!dateString) return 'Date TBD';
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        };
+
+        res.render('projects', { title, projects, formatDate });
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        res.status(500).send('Server Error');
+    }
 });
 
 app.get('/categories', async (req, res) => {
