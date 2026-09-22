@@ -3,12 +3,13 @@
 <main>
     <h1><%= title %></h1>
 
-    <h2>Upcoming Service Projects</h2>
+    <p>Here are our upcoming service projects:</p>
     <ul>
         <% projects.forEach(project => { %>
             <li>
                 <strong><%= formatDate(project.date) %>:</strong> 
-                <%= project.title %> (<%= project.organization_name %>)
+                <a href="/project/<%= project.project_id %>"><%= project.title %></a> 
+                (<%= project.organization_name %>)
             </li>
         <% }); %>
     </ul>

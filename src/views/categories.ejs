@@ -1,14 +1,16 @@
 <%- include('partials/header') %>
-    <main>
-        <h1><%= title %></h1>
-        
-        <h2>Service Project Categories</h2>
-        <p>Here are our service project categories:</p>
-        <ul>
-            <% categories.forEach(category => { %>
-                <li><strong><%= category.category_name %></strong></li>
-            <% }); %>
-        </ul>
-    </main>
+
+<main>
+    <h1><%= title %></h1>
+
+    <p>Here are our service project categories:</p>
+    <ul>
+        <% categories.forEach(category => { %>
+            <li>
+                <a href="/category/<%= category.category_id %>"><%= category.category_name %></a>
+            </li>
+        <% }); %>
+    </ul>
+</main>
 
 <%- include('partials/footer') %>
