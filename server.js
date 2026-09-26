@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import { testConnection } from './src/models/db.js';
 import router from './src/routes.js';
+import session from 'express-session';
+import flash from './src/middleware/flash.js';
 
 // Define the application environment
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
@@ -15,9 +17,34 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+
+// Allow Express to receive and process common POST data
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+
 /**
   * Configure Express middleware
   */
+
+
+
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-very-secure-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 60 * 60 * 1000, // 1 hour
+        secure: process.env.NODE_ENV === 'production', // true if HTTPS
+        httpOnly: true,
+        sameSite: 'lax'
+    },
+    // Uncomment and configure a store for production
+    // store: new RedisStore({ client: redisClient }),
+}));
+
+// Use flash message middleware
+app.use(flash);
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -72,6 +99,10 @@ app.use((err, req, res, next) => {
     // Render the appropriate error template
     res.status(status).render(`errors/${template}`, context);
 });
+
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
+
 
 app.listen(PORT, async () => {
   try {
