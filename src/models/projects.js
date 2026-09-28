@@ -73,10 +73,34 @@ const getProjectsByCategoryId = async (categoryId) => {
     return result.rows;
 };
 
+
+const createProject = async (title, description, location, date, organizationId) => {
+    const query = `
+      INSERT INTO project (title, description, location, date, organization_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING project_id;
+    `;
+
+    const queryParams = [title, description, location, date, organizationId];
+    const result = await db.query(query, queryParams);
+
+    if (result.rows.length === 0) {
+        throw new Error('Failed to create project');
+    }
+
+    if (process.env.ENABLE_SQL_LOGGING === 'true') {
+        console.log('Created new project with ID:', result.rows[0].project_id);
+    }
+
+    return result.rows[0].project_id;
+}
+
+
+
 // Export all model functions from a single unified export block
 export { 
     getAllProjects, 
     getProjectsByOrganizationId, 
     getCategoryDetails, 
-    getProjectsByCategoryId 
+    getProjectsByCategoryId, createProject 
 };
