@@ -1,0 +1,87 @@
+<%- include('partials/header') %>
+
+<main class="form-container" style="max-width: 650px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #ccc; border-radius: 8px;">
+    <h1>Edit Project Details</h1>
+
+    <form action="/project/edit/<%= project.project_id %>" method="POST">
+        <!-- Project Title -->
+        <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label for="title" style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Project Title:</label>
+            <input 
+                type="text" 
+                id="title" 
+                name="title" 
+                value="<%= project.title %>" 
+                required 
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;"
+            />
+        </div>
+
+        <!-- Organization Selection -->
+        <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label for="organizationId" style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Organization:</label>
+            <select 
+                id="organizationId" 
+                name="organizationId" 
+                required 
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
+                <% organizations.forEach(org => { %>
+                    <option 
+                        value="<%= org.organization_id %>" 
+                        <%= org.organization_id === project.organization_id ? 'selected' : '' %>>
+                        <%= org.name %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <!-- Date -->
+        <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label for="date" style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Date:</label>
+            <input 
+                type="date" 
+                id="date" 
+                name="date" 
+                value="<%= new Date(project.date).toISOString().split('T')[0] %>" 
+                required 
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;"
+            />
+        </div>
+
+        <!-- Location -->
+        <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label for="location" style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Location:</label>
+            <input 
+                type="text" 
+                id="location" 
+                name="location" 
+                value="<%= project.location %>" 
+                required 
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;"
+            />
+        </div>
+
+        <!-- Description -->
+        <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label for="description" style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Description:</label>
+            <textarea 
+                id="description" 
+                name="description" 
+                rows="4" 
+                required 
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;"><%= project.description %></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions" style="display: flex; gap: 10px; align-items: center;">
+            <button 
+                type="submit" 
+                style="background-color: #0056b3; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; font-size: 1rem;">
+                Update Project
+            </button>
+            <a href="/projects" style="color: #6c757d; text-decoration: none;">Cancel</a>
+        </div>
+    </form>
+</main>
+
+<%- include('partials/footer') %>

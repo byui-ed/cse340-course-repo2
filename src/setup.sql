@@ -244,3 +244,165 @@ VALUES
 (1, 3), (2, 3), (3, 3), (4, 1), (5, 2),
 (6, 1), (7, 2), (8, 1), (9, 1), (10, 4),
 (11, 4), (12, 3), (13, 2), (14, 3), (15, 4);
+
+
+
+
+
+
+
+
+
+-- 1. Create the services table
+CREATE TABLE IF NOT EXISTS public.service (
+    service_id SERIAL PRIMARY KEY,
+    service_name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
+);
+
+-- 2. Create the junction table linking project and service (Many-to-Many)
+CREATE TABLE IF NOT EXISTS public.project_service (
+    project_id INT NOT NULL,
+    service_id INT NOT NULL,
+    PRIMARY KEY (project_id, service_id),
+    CONSTRAINT fk_project
+        FOREIGN KEY (project_id) 
+        REFERENCES public.project(project_id) 
+        ON DELETE CASCADE,
+    CONSTRAINT fk_service
+        FOREIGN KEY (service_id) 
+        REFERENCES public.service(service_id) 
+        ON DELETE CASCADE
+);
+
+-- 3. Insert sample service data
+INSERT INTO public.service (service_name, description) VALUES
+('Debris Cleanup', 'Removal and clearing of fallen branches, trash, and storm debris.'),
+('Tree Planting', 'Planting native trees and saplings in public park areas.'),
+('Meal Distribution', 'Preparing and handing out warm meals to community members.'),
+('Tutoring & Mentorship', 'Academic support and guidance for elementary students')
+ON CONFLICT DO NOTHING;
+
+-- 4. Associate services with existing projects (Example linking)
+-- Assumes project_id 1 and service_ids 1, 2 exist
+INSERT INTO public.project_service (project_id, service_id) VALUES
+(1, 1),
+(1, 2)
+ON CONFLICT DO NOTHING;
+
+
+
+
+
+
+
+
+
+
+-- Junction table linking projects to categories
+CREATE TABLE IF NOT EXISTS public.project_category (
+    project_id INT NOT NULL REFERENCES public.project(project_id) ON DELETE CASCADE,
+    category_id INT NOT NULL REFERENCES public.categories(category_id) ON DELETE CASCADE,
+    PRIMARY KEY (project_id, category_id)
+);
+
+-- Junction table linking projects to services
+CREATE TABLE IF NOT EXISTS public.project_service (
+    project_id INT NOT NULL REFERENCES public.project(project_id) ON DELETE CASCADE,
+    service_id INT NOT NULL REFERENCES public.service(service_id) ON DELETE CASCADE,
+    PRIMARY KEY (project_id, service_id)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- ========================================
+-- 5. Services Table
+-- ========================================
+CREATE TABLE IF NOT EXISTS services (
+    service_id SERIAL PRIMARY KEY,
+    service_name VARCHAR(150) NOT NULL UNIQUE,
+    description TEXT
+);
+
+-- Sample Data: Services offered across categories
+INSERT INTO services (service_name, description) VALUES
+    ('Accessibility & Construction', 'Building ramps, structural repairs, and physical assembly.'),
+    ('Environmental Restoration', 'Tree planting, park cleanup, and habitat conservation.'),
+    ('Sustainable Agriculture', 'Gardening, composting, greenhouse, and hydroponic setups.'),
+    ('Educational Workshops', 'Tutoring, skill-building, and hands-on teaching sessions.'),
+    ('Senior Care & Outreach', 'Health check-ins, social visitation, and support services.'),
+    ('Food & Resource Assistance', 'Pantry drives, coat drives, and meal preparation for shelters.')
+ON CONFLICT (service_name) DO NOTHING;
+
+
+-- ========================================
+-- 6. Project Services Junction Table (Many-to-Many)
+-- ========================================
+CREATE TABLE IF NOT EXISTS project_services (
+    project_id INT NOT NULL,
+    service_id INT NOT NULL,
+    PRIMARY KEY (project_id, service_id),
+    CONSTRAINT fk_ps_project FOREIGN KEY (project_id) REFERENCES project(project_id) ON DELETE CASCADE,
+    CONSTRAINT fk_ps_service FOREIGN KEY (service_id) REFERENCES services(service_id) ON DELETE CASCADE
+);
+
+-- ========================================
+-- Associate Services with Projects across Categories
+-- ========================================
+INSERT INTO project_services (project_id, service_id)
+VALUES
+    -- Projects linked to "Community Service" (Category ID 3)
+    (1, 1), -- Community Center Ramp Installation -> Accessibility & Construction
+    (2, 1), -- Affordable Housing Framing -> Accessibility & Construction
+    (3, 1), -- Playground Restoration -> Accessibility & Construction
+    (12, 6), -- Food Pantry Drive -> Food & Resource Assistance
+    (14, 6), -- Clothing Drive -> Food & Resource Assistance
+
+    -- Projects linked to "Environmental" (Category ID 1)
+    (4, 2), -- Energy Efficient Insulation -> Environmental Restoration
+    (6, 3), -- Neighborhood Garden Planting -> Sustainable Agriculture
+    (8, 3), -- Composting Workshop -> Sustainable Agriculture
+    (9, 2), -- Urban Orchard Tree Planting -> Environmental Restoration
+
+    -- Projects linked to "Educational" (Category ID 2)
+    (5, 4), -- Youth Workshop Buildout -> Educational Workshops
+    (7, 3), -- Greenhouse Setup -> Sustainable Agriculture
+    (7, 4), -- Greenhouse Setup -> Educational Workshops
+    (13, 4), -- After-School Tutoring -> Educational Workshops
+
+    -- Projects linked to "Health and Wellness" (Category ID 4)
+    (10, 3), -- Vertical Hydroponics -> Sustainable Agriculture
+    (11, 5), -- Senior Health Check -> Senior Care & Outreach
+    (15, 6)  -- Holiday Meal Prep -> Food & Resource Assistance
+ON CONFLICT DO NOTHING;
+
+
+-- ========================================
+-- Verification Query: Category Details Page Query
+-- Checks Categories -> Projects -> Organizations -> Services
+-- ========================================
+SELECT 
+    c.category_name,
+    p.title AS project_title,
+    p.date,
+    p.location,
+    o.name AS organization_name,
+    COALESCE(STRING_AGG(s.service_name, ', '), 'No Services') AS services_provided
+FROM categories c
+JOIN project_categories pc ON c.category_id = pc.category_id
+JOIN project p ON pc.project_id = p.project_id
+JOIN organization o ON p.organization_id = o.organization_id
+LEFT JOIN project_services ps ON p.project_id = ps.project_id
+LEFT JOIN services s ON ps.service_id = s.service_id
+GROUP BY c.category_name, p.project_id, o.name
+ORDER BY c.category_name, p.date ASC;

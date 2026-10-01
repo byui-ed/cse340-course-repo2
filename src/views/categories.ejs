@@ -1,16 +1,29 @@
 <%- include('partials/header') %>
 
-<main>
+<main class="categories-container">
     <h1><%= title %></h1>
+    <p><a href="/new-category" class="btn">Add New Category</a></p>
 
-    <p>Here are our service project categories:</p>
-    <ul>
+    <ul class="categories-list" style="list-style: none; padding: 0;">
         <% categories.forEach(category => { %>
-            <li>
-                <a href="/category/<%= category.category_id %>"><%= category.category_name %></a>
+            <li style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <a href="/category/<%= category.category_id %>" style="font-size: 1.1em; font-weight: bold;">
+                        <%= category.category_name %>
+                    </a>
+                </div>
+                <div>
+                    <a href="/category/edit/<%= category.category_id %>" class="btn-edit" style="color: #0056b3; text-decoration: none; margin-left: 10px;">
+                        [Edit Category]
+                    </a>
+                </div>
             </li>
         <% }); %>
     </ul>
 </main>
 
 <%- include('partials/footer') %>
+
+
+
+

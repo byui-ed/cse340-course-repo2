@@ -1,0 +1,32 @@
+<%- include('partials/header') %>
+
+<main class="form-container" style="max-width: 600px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #ccc; border-radius: 8px;">
+    <h1>Edit Category</h1>
+
+    <form action="/category/edit/<%= category.category_id %>" method="POST">
+        <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label for="categoryName" style="display: block; font-weight: bold; margin-bottom: 0.5rem;">
+                Category Name:
+            </label>
+            <input 
+                type="text" 
+                id="categoryName" 
+                name="categoryName" 
+                value="<%= category.category_name %>" 
+                required 
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;"
+            />
+        </div>
+
+        <div class="form-actions" style="display: flex; gap: 10px; align-items: center;">
+            <button 
+                type="submit" 
+                style="background-color: #0056b3; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; font-size: 1rem;">
+                Update Category
+            </button>
+            <a href="/categories" style="color: #6c757d; text-decoration: none;">Cancel</a>
+        </div>
+    </form>
+</main>
+
+<%- include('partials/footer') %>

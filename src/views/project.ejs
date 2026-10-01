@@ -1,14 +1,32 @@
 <%- include('partials/header') %>
+
 <main>
-    <h1><%= title %></h1>
+    <h1><%= projectDetails.title %></h1>
 
-    <h2><%= projectDetails.title %></h2>
+    <div class="project-info">
+        <p><strong>Organization:</strong> <%= projectDetails.organization_name %></p>
+        <p><strong>Date:</strong> <%= projectDetails.date %></p>
+        <p><strong>Location:</strong> <%= projectDetails.location %></p>
+        <p><strong>Description:</strong> <%= projectDetails.description %></p>
+    </div>
 
-    <p><strong>Organization:</strong> <%= projectDetails.organization_name %></p>
-    <p><strong>Date:</strong> <%= formatDate(projectDetails.date) %></p>
-    <p><strong>Location:</strong> <%= projectDetails.location %></p>
+    <!-- Services / Work Provided Section -->
+    <section class="services-section">
+        <h2>Services & Work Included</h2>
+        <% if (services && services.length > 0) { %>
+            <ul class="services-list">
+                <% services.forEach(service => { %>
+                    <li>
+                        <strong><%= service.service_name %></strong>: <%= service.description %>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p>No specific services assigned to this project yet.</p>
+        <% } %>
+    </section>
 
-    <h3>Description</h3>
-    <p><%= projectDetails.description %></p>
+    <p><a href="/edit-project/<%= projectDetails.project_id %>">Edit Project Details</a></p>
 </main>
+
 <%- include('partials/footer') %>
