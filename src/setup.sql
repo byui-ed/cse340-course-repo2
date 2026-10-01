@@ -406,3 +406,94 @@ LEFT JOIN project_services ps ON p.project_id = ps.project_id
 LEFT JOIN services s ON ps.service_id = s.service_id
 GROUP BY c.category_name, p.project_id, o.name
 ORDER BY c.category_name, p.date ASC;
+
+
+
+
+
+SELECT 
+    c.category_id,
+    c.category_name,
+    p.project_id,
+    p.title AS project_title,
+    p.description AS project_description,
+    p.date AS project_date,
+    p.location,
+    o.name AS organization_name
+FROM categories c
+LEFT JOIN project_categories pc ON c.category_id = pc.category_id
+LEFT JOIN project p ON pc.project_id = p.project_id
+LEFT JOIN organization o ON p.organization_id = o.organization_id
+ORDER BY c.category_name, p.date;
+
+
+
+
+
+SELECT 
+    c.category_id,
+    c.category_name,
+    COALESCE(
+        jsonb_agg(
+            jsonb_build_object(
+                'project_id', p.project_id,
+                'title', p.title,
+                'description', p.description,
+                'date', p.date,
+                'location', p.location,
+                'organization', o.name
+            )
+        ) FILTER (WHERE p.project_id IS NOT NULL), 
+        '[]'::jsonb
+    ) AS projects
+FROM categories c
+LEFT JOIN project_categories pc ON c.category_id = pc.category_id
+LEFT JOIN project p ON pc.project_id = p.project_id
+LEFT JOIN organization o ON p.organization_id = o.organization_id
+GROUP BY c.category_id, c.category_name
+ORDER BY c.category_name;
+
+
+
+
+
+
+SELECT 
+    p.project_id,
+    p.title,
+    p.description,
+    p.date,
+    p.location,
+    o.name AS organization_name
+FROM project p
+JOIN project_categories pc ON p.project_id = pc.project_id
+JOIN categories c ON pc.category_id = c.category_id
+JOIN organization o ON p.organization_id = o.organization_id
+WHERE c.category_name = 'Environmental'
+ORDER BY p.date;
+
+
+
+
+
+CREATE OR REPLACE VIEW view_category_projects AS
+SELECT 
+    c.category_id,
+    c.category_name,
+    p.project_id,
+    p.title AS project_title,
+    p.description AS project_description,
+    p.date AS project_date,
+    p.location,
+    o.organization_id,
+    o.name AS organization_name
+FROM categories c
+JOIN project_categories pc ON c.category_id = pc.category_id
+JOIN project p ON pc.project_id = p.project_id
+JOIN organization o ON p.organization_id = o.organization_id;
+
+-- Usage:
+SELECT * FROM view_category_projects WHERE category_name = 'Health and Wellness';
+
+
+
