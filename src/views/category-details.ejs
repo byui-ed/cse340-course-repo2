@@ -1,44 +1,26 @@
 <%- include('partials/header') %>
 
-<main>
-    <h1>Category: <%= category.category_name %></h1>
+<main class="category-details-container">
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <h1><%= category.category_name %> Projects</h1>
+        <a href="/category/edit/<%= category.category_id %>" class="btn-edit">Edit Category</a>
+    </header>
 
-    <!-- Services Offered Under This Category -->
-    <section class="services-section">
-        <h2>Services & Work Provided in this Category</h2>
-        <% if (services && services.length > 0) { %>
-            <ul class="services-list">
-                <% services.forEach(service => { %>
-                    <li>
-                        <strong><%= service.service_name %></strong>: <%= service.description %>
-                    </li>
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>No services currently assigned to projects in this category.</p>
-        <% } %>
-    </section>
-
-    <!-- Projects Under This Category -->
-    <section class="projects-section">
-        <h2>Associated Projects</h2>
+    <!-- Project list section below -->
+    <div class="projects-list">
         <% if (projects && projects.length > 0) { %>
-            <ul>
-                <% projects.forEach(project => { %>
-                    <li>
-                        <a href="/project/<%= project.project_id %>"><%= project.title %></a> - <%= project.location %>
-                    </li>
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>No projects found for this category.</p>
+            <% projects.forEach(project => { %>
+                <article class="project-card">
+                    <h2><a href="/project/<%= project.project_id %>"><%= project.title %></a></h2>
+                    <p><strong>Organization:</strong> <%= project.organization_name %></p>
+                    <p><strong>Location:</strong> <%= project.location %></p>
+                    <p><strong>Date:</strong> <%= new Date(project.date).toLocaleDateString() %></p>
+                </article>
+            <% }); %>
         <% } %>
-    </section>
+    </div>
 
-    <p><a href="/categories">Back to Categories List</a></p>
+    <p><a href="/categories">&larr; Back to Categories</a></p>
 </main>
 
 <%- include('partials/footer') %>
-
-
-
