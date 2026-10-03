@@ -3,7 +3,11 @@
 <main class="category-details-container">
     <header style="display: flex; justify-content: space-between; align-items: center;">
         <h1><%= category.category_name %> Projects</h1>
+
+        <% if (user && user.role_name === 'admin') { %>
         <a href="/category/edit/<%= category.category_id %>" class="btn-edit">Edit Category</a>
+        <% } %>
+        
     </header>
 
     <!-- Project list section below -->
