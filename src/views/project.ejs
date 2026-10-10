@@ -1,19 +1,91 @@
 <%- include('partials/header') %>
 
-<main>
+<main class="project-details-container">
     <h1><%= projectDetails.title %></h1>
 
-    <div class="project-info">
-        <p><strong>Organization:</strong> <%= projectDetails.organization_name %></p>
-        <p><strong>Date:</strong> <%= projectDetails.date %></p>
-        <p><strong>Location:</strong> <%= projectDetails.location %></p>
-        <p><strong>Description:</strong> <%= projectDetails.description %></p>
-    </div>
+    <!-- Project Overview Info -->
+    <section class="project-info card">
+        <p><strong>Organization:</strong> <%= projectDetails.organization_name || 'N/A' %></p>
+        <p><strong>Date:</strong> <%= projectDetails.date ? new Date(projectDetails.date).toLocaleDateString() : 'TBD' %></p>
+        <p><strong>Location:</strong> <%= projectDetails.location || 'N/A' %></p>
+        <p><strong>Description:</strong> <%= projectDetails.description || 'No description provided.' %></p>
+    </section>
 
-    <!-- Services / Work Provided Section -->
-    <section class="services-section">
+    <!-- Volunteer Section (Visible to Logged-in Users Only) -->
+    <% if (typeof user !== 'undefined' && user) { %>
+        <section class="volunteer-section card">
+            <h3>Volunteer Status</h3>
+            <% if (typeof isVolunteering !== 'undefined' && isVolunteering) { %>
+                <div class="volunteer-active">
+                    <p class="volunteer-status">✓ You are volunteering for this project!</p>
+                    <form action="/project/<%= projectDetails.project_id %>/unvolunteer" method="POST">
+                        <button type="submit" class="btn btn-secondary">Remove Me as Volunteer</button>
+                    </form>
+                </div>
+            <% } else { %>
+                <form action="/project/<%= projectDetails.project_id %>/volunteer" method="POST">
+                    <button type="submit" class="btn btn-primary">Sign Up to Volunteer</button>
+                </form>
+            <% } %>
+        </section>
+    <% } %>
+
+
+
+<!-- Volunteer Section -->
+<% if (typeof user !== 'undefined' && user) { %>
+    <section class="volunteer-section card">
+        <h3>Volunteer Status</h3>
+        <% if (typeof isVolunteering !== 'undefined' && isVolunteering) { %>
+            <div class="volunteer-active">
+                <p class="volunteer-status">✓ You are volunteering for this project!</p>
+                <form action="/project/<%= projectDetails.project_id %>/unvolunteer" method="POST">
+                    <button type="submit" class="btn btn-secondary">Remove Me as Volunteer</button>
+                </form>
+            </div>
+        <% } else { %>
+            <!-- Functional Sign Up Button Link -->
+            <a href="/project/<%= projectDetails.project_id %>/volunteer" class="btn btn-primary">
+                Sign Up to Volunteer
+            </a>
+        <% } %>
+    </section>
+<% } else { %>
+    <!-- Call to action for logged-out visitors -->
+    <section class="volunteer-section card">
+        <h3>Want to Volunteer?</h3>
+        <p><a href="/login" class="btn btn-primary">Log in to sign up as a volunteer</a></p>
+    </section>
+<% } %>
+
+
+
+
+
+
+
+    <!-- Assigned Categories Section -->
+    <section class="categories-section card">
+        <h2>Categories</h2>
+        <% if (typeof categories !== 'undefined' && categories && categories.length > 0) { %>
+            <ul class="categories-list">
+                <% categories.forEach(category => { %>
+                    <li>
+                        <a href="/category/<%= category.category_id %>" class="category-tag">
+                            <%= category.name || category.category_name %>
+                        </a>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p class="empty-state">No categories assigned to this project yet.</p>
+        <% } %>
+    </section>
+
+    <!-- Services / Work Included Section -->
+    <section class="services-section card">
         <h2>Services & Work Included</h2>
-        <% if (services && services.length > 0) { %>
+        <% if (typeof services !== 'undefined' && services && services.length > 0) { %>
             <ul class="services-list">
                 <% services.forEach(service => { %>
                     <li>
@@ -22,12 +94,20 @@
                 <% }); %>
             </ul>
         <% } else { %>
-            <p>No specific services assigned to this project yet.</p>
+            <p class="empty-state">No specific services assigned to this project yet.</p>
         <% } %>
     </section>
 
-    <% if (user && user.role_name === 'admin') { %>
-    <p><a href="/edit-project/<%= projectDetails.project_id %>">Edit Project Details</a></p>
+    <!-- Admin Management Section -->
+    <% if (typeof user !== 'undefined' && user && user.role_name === 'admin') { %>
+        <section class="admin-actions card">
+            <h3>Admin Tools</h3>
+            <ul class="admin-links">
+                <li><a href="/edit-project/<%= projectDetails.project_id %>">Edit Project Details</a></li> 
+                <li><a href="/project/<%= projectDetails.project_id %>/volunteer">Sign Up to Volunteer</a></li>
+
+            </ul>
+        </section>
     <% } %>
 </main>
 

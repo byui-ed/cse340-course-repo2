@@ -1,11 +1,52 @@
 <%- include('partials/header') %>
 
-<main>
-    <h1><%= title %></h1>
+<main class="dashboard-container">
+    <h1><%= typeof title !== 'undefined' ? title : 'User Dashboard' %></h1>
 
-    <h2>Dashboard</h2>
-    <p>Name: <%= name %></p>
-    <p>Username: <%= email %></p>
+    <!-- User Profile Details Section -->
+    <section class="user-profile card">
+        <h2>Account Profile</h2>
+        <p><strong>Name:</strong> <%= typeof name !== 'undefined' ? name : (user ? (user.first_name ? user.first_name + ' ' + (user.last_name || '') : user.username) : 'N/A') %></p>
+        <p><strong>Email / Username:</strong> <%= typeof email !== 'undefined' ? email : (user ? user.email : 'N/A') %></p>
+    </section>
+
+    <!-- Volunteered Projects Section -->
+    <section class="user-volunteered-projects card">
+        <h2>Your Volunteered Projects</h2>
+
+        <% if (typeof volunteeredProjects !== 'undefined' && volunteeredProjects && volunteeredProjects.length > 0) { %>
+            <ul class="project-card-list">
+                <% volunteeredProjects.forEach(project => { %>
+                    <li class="project-card">
+                        <h3>
+                            <a href="/project/<%= project.project_id %>"><%= project.title %></a>
+                        </h3>
+                        <p><strong>Organization:</strong> <%= project.organization_name || 'N/A' %></p>
+                        <p><strong>Date:</strong> <%= project.date ? new Date(project.date).toLocaleDateString() : 'TBD' %></p>
+                        <p><strong>Location:</strong> <%= project.location || 'N/A' %></p>
+
+                        <!-- Remove Volunteer Action Form -->
+                        <form action="/project/<%= project.project_id %>/unvolunteer" method="POST">
+                            <input type="hidden" name="source" value="dashboard" />
+                            <button type="submit" class="btn btn-danger">Cancel Volunteering</button>
+                        </form>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p>You have not signed up to volunteer for any projects yet.</p>
+            <p><a href="/projects" class="btn btn-primary">Browse upcoming projects</a> to get involved!</p>
+        <% } %>
+    </section>
+
+<section class="admin-controls card">
+    <h2>Admin Navigation</h2>
+    <ul class="admin-menu">
+         <li><a href="/projects">Manage Projects</a></li>
+        <!-- Other admin links -->
+    </ul>
+</section>
+
 
 </main>
 

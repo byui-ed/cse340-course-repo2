@@ -222,6 +222,71 @@ const getAllOrganizations = async () => {
 
 
 
+
+const updateProjectCategories = async (projectId, categoryIds) => {
+    const client = await db.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Delete existing category assignments for this project
+        await client.query('DELETE FROM project_categories WHERE project_id = $1', [projectId]);
+
+        // Insert new category assignments
+        if (categoryIds.length > 0) {
+            const insertQuery = `
+                INSERT INTO project_categories (project_id, category_id) 
+                VALUES ` + categoryIds.map((_, i) => `($1, $${i + 2})`).join(', ');
+            
+            await client.query(insertQuery, [projectId, ...categoryIds]);
+        }
+
+        await client.query('COMMIT');
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+
+
+// Add a volunteer entry for a project
+const addProjectVolunteer = async (projectId, userId, details) => {
+    const { phone, availability, skills, notes, emergencyName, emergencyPhone } = details;
+    
+    const query = `
+        INSERT INTO project_volunteers 
+            (project_id, user_id, phone, availability, skills, notes, emergency_name, emergency_phone, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        ON CONFLICT (project_id, user_id) 
+        DO UPDATE SET 
+            phone = EXCLUDED.phone,
+            availability = EXCLUDED.availability,
+            skills = EXCLUDED.skills,
+            notes = EXCLUDED.notes,
+            emergency_name = EXCLUDED.emergency_name,
+            emergency_phone = EXCLUDED.emergency_phone
+        RETURNING *
+    `;
+
+    const values = [
+        projectId,
+        userId,
+        phone,
+        availability,
+        skills || null,
+        notes || null,
+        emergencyName,
+        emergencyPhone
+    ];
+
+    const result = await db.query(query, values);
+    return result.rows[0];
+};
+
+
+
 // Export all model functions from a single unified export block
 export { 
     getAllProjects, 
@@ -233,5 +298,7 @@ export {
     updateProject,
     getServicesByProjectId, 
     getAllProjectsWithServices,
-    getProjectById, getAllOrganizations
+    getProjectById, getAllOrganizations, 
+    updateProjectCategories, 
+    addProjectVolunteer
 };

@@ -24,6 +24,16 @@ import { showUserRegistrationForm, processUserRegistrationForm } from './control
 import { showLoginForm, processLoginForm, processLogout } from './controllers/users.js';
 import { requireLogin, showDashboard } from './controllers/users.js';
 import { requireRole } from './controllers/users.js';
+import { volunteerForProject, unvolunteerFromProject } from './controllers/projects.js';
+import { showVolunteerForm, processVolunteerSignup } from './controllers/projects.js';
+
+
+import { showAdminDashboard, changeUserRole,  removeUser } from './controllers/admin.js';
+
+
+
+
+
 
 
 
@@ -89,6 +99,28 @@ router.post('/login', processLoginForm);
 router.get('/logout', processLogout);
 // Protected dashboard route
 router.get('/dashboard', requireLogin, showDashboard);
+
+
+// Project Details & Volunteer Actions
+router.post('/project/:id/volunteer', requireLogin, volunteerForProject);
+router.post('/project/:id/unvolunteer', requireLogin, unvolunteerFromProject);
+
+// GET: Display the volunteer sign-up form
+router.get('/project/:id/volunteer', requireLogin, showVolunteerForm);
+
+// POST: Handle the form submission
+router.post('/project/:id/volunteer', requireLogin, processVolunteerSignup);
+
+
+
+// GET: Display Admin Dashboard with User List
+router.get('/admin/dashboard', requireRole('admin'), showAdminDashboard);
+
+// POST: Update Role / Delete User
+router.post('/admin/users/role', requireRole('admin'), changeUserRole);
+router.post('/admin/users/delete', requireRole('admin'), removeUser);
+
+
 
 
 

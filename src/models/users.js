@@ -76,4 +76,41 @@ const authenticateUser = async (email, password) => {
 
 
 
-export { createUser, authenticateUser };
+
+
+
+
+// Retrieve all users with their roles, ordered by newest first
+const getAllUsers = async () => {
+    const query = `
+        SELECT u.user_id, u.first_name, u.last_name, u.email, u.role_name, u.created_at
+        FROM users u
+        ORDER BY u.created_at DESC
+    `;
+    const result = await db.query(query);
+    return result.rows;
+};
+
+// Optional: Update a user's role (e.g., promote to admin or demote to user)
+const updateUserRole = async (userId, roleName) => {
+    const query = `
+        UPDATE users 
+        SET role_name = $1 
+        WHERE user_id = $2
+    `;
+    await db.query(query, [roleName, userId]);
+};
+
+// Optional: Remove a user
+const deleteUserById = async (userId) => {
+    const query = `DELETE FROM users WHERE user_id = $1`;
+    await db.query(query, [userId]);
+};
+
+
+
+
+
+
+
+export { createUser, authenticateUser, getAllUsers, updateUserRole, deleteUserById };

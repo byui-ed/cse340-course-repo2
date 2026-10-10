@@ -3,6 +3,11 @@ import { createUser } from '../models/users.js';
 import { authenticateUser } from '../models/users.js';
 
 
+
+
+
+
+
 const showUserRegistrationForm = (req, res) => {
     res.render('register', { title: 'Register' });
 };
@@ -41,6 +46,7 @@ const requireLogin = (req, res, next) => {
 
 
 
+
 // Render user dashboard
 const showDashboard = (req, res) => {
     const user = req.session.user;
@@ -50,6 +56,8 @@ const showDashboard = (req, res) => {
         email: user.email
     });
 };
+
+
 
 
 
@@ -122,9 +130,6 @@ const requireRole = (role) => {
         next();
     };
 };
-
-
-
 
 
 
